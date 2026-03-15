@@ -2456,35 +2456,41 @@ With nearly three decades of industry experience, the business has successfully 
 
     <script>
         // API Configuration
-       const API_BASE_URL = 'https://finalestate-1.onrender.com';
-        // Application Data Storage - EMPTY INITIAL STATE (your backend will populate)
-        const appData = {
-            currentUser: null,
-            projects: { completed: [], progress: [] },
-            reviews: [],
-            designs: { house: [], kitchen: [], ceiling: [] }
-        };
+      // At the top of your script
+const API_BASE_URL = 'https://finalestate-1.onrender.com';
 
-        function createProjectCard(project, type) {
-            const card = document.createElement('div');
-            card.className = 'project-card';
-            const imagePath = project.image_path || project.image || "/uploads/progress/default.jpg";
-            card.innerHTML = `
-                <div class="project-img">
-                    <div class="project-status ${type === 'completed' ? 'status-completed' : 'status-progress'}">
-                        ${type === 'completed' ? 'Completed' : 'In Progress'}
-                    </div>
-                    <img src="${imagePath}" alt="${project.title}" onerror="this.src='https://via.placeholder.com/400x300/f8f9fa/6c757d?text=Project+Image'">
-                </div>
-                <div class="project-info">
-                    <h3>${project.title}</h3>
-                    <div class="project-location"><i class="fas fa-map-marker-alt"></i> ${project.location}</div>
-                    <p>${project.description}</p>
-                    ${type === 'progress' ? `<div><small>Progress: ${project.progress}%</small></div>` : ''}
-                </div>
-            `;
-            return card;
-        }
+// Add this function to handle Cloudinary URLs
+function getImageUrl(project) {
+    // If it's already a Cloudinary URL, use it directly
+    if (project.image_path && project.image_path.includes('cloudinary')) {
+        return project.image_path;
+    }
+    // Fallback for local images (shouldn't happen anymore)
+    return 'https://via.placeholder.com/400x300/f8f9fa/6c757d?text=Project+Image';
+}
+
+// Update your createProjectCard function
+function createProjectCard(project, type) {
+    const card = document.createElement('div');
+    card.className = 'project-card';
+    const imageUrl = getImageUrl(project);
+    card.innerHTML = `
+        <div class="project-img">
+            <div class="project-status ${type === 'completed' ? 'status-completed' : 'status-progress'}">
+                ${type === 'completed' ? 'Completed' : 'In Progress'}
+            </div>
+            <img src="${imageUrl}" alt="${project.title}" 
+                 onerror="this.src='https://via.placeholder.com/400x300/f8f9fa/6c757d?text=Image+Not+Found'">
+        </div>
+        <div class="project-info">
+            <h3>${project.title}</h3>
+            <div class="project-location"><i class="fas fa-map-marker-alt"></i> ${project.location}</div>
+            <p>${project.description}</p>
+            ${type === 'progress' ? '' : ''}
+        </div>
+    `;
+    return card;
+}
 
         // DOM Elements
         const sidebar = document.getElementById('sidebar');
